@@ -1,0 +1,6 @@
+- Fix Pie 
+- Indiv Plots.
+- rearrange: levels 1. title, index, total invested, values, ROI Annualized. 
+                    2. potfolio and Pnl plot. 
+                    3. descriptions & pie 
+                    4. Indiv Plots. (or on new page or ...?)  
