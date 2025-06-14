@@ -1,7 +1,7 @@
 
 import { use, useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
-import { info_layout, layout } from './constants';
+import { info_layout, info_txt_layout, layout } from './constants';
 import CardWidget from './CardWidget';
 // import '../styles/Dashboard.css';
 

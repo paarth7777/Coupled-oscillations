@@ -61,4 +61,5 @@ export const layout = {
     hovermode: "x",
 };
 
-export const info_layout = { paper_bgcolor: "transparent", plot_bgcolor: "transparent", font: { color: "white" }, };
+export const info_layout = { paper_bgcolor: "transparent", plot_bgcolor: "transparent", font: { color: "white" } };
+export const info_txt_layout = { paper_bgcolor: "transparent", plot_bgcolor: "transparent", font: { color: "white" }, margin: { t: 40, l: 40, r: 40, b: 40 } };

@@ -64,9 +64,12 @@ html, body {
 .card p {
   position: absolute;
   bottom: 0.75rem;
-  left: 2rem;
+  left: 1rem;
+  margin: 0;
+  padding: 0.5rem;
   font-size: 1.3rem;
   color: rgba(255, 255, 255, 0.75);
+  background-color: #262B49;
 }
 
 .comparison-select {

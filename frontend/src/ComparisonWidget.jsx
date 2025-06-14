@@ -2,7 +2,7 @@
 import { use, useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import CardWidget from './CardWidget';
-import { info_layout, layout } from './constants';
+import { info_layout, info_txt_layout, layout } from './constants';
 // import '../styles/Dashboard.css';
 
 const comp_indices = [
@@ -159,7 +159,7 @@ function ComparisonWidget() {
         }
     }, [ selectedIndex ])
 
-    
+
 
 
     const [ layouts, setLayouts ] = useState([ info_layout, { ...layout }, { ...layout, barmode: "group" } ]);
@@ -167,7 +167,7 @@ function ComparisonWidget() {
     return (
         <div className="comparison">
             <div className="header">
-                <h1 style={ { gridColumn: "1", gridRow: "1"} }>Investment Portfolio</h1>
+                <h1 style={ { gridColumn: "1", gridRow: "1" } }>Investment Portfolio</h1>
                 <CardWidget style={ { gridColumn: "2", gridRow: "1", height: "15vw" } } title={ "Comparison Index" }>
                     <select onChange={ e => setselectedIndex(e.target.value) } className='comparison-select'>
                         { comp_indices.map((index, idx) => (
@@ -180,7 +180,7 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "3", gridRow: "1", height: "15vw" } } title={ "Cash Invested" }>
                     <Plot
                         data={ [ info[ 0 ] ] }
-                        layout={ { ...layouts[ 0 ] } }
+                        layout={ info_txt_layout }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
@@ -190,7 +190,7 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "4", gridRow: "1", height: "15vw" } } title={ "Portfolio Value" }>
                     <Plot
                         data={ [ info[ 1 ] ] }
-                        layout={ { ...layouts[ 0 ] } }
+                        layout={ info_txt_layout }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
@@ -200,7 +200,7 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "5", gridRow: "1", height: "15vw" } } title={ "Comparsion Index Value" }>
                     <Plot
                         data={ [ info[ 2 ] ] }
-                        layout={ { ...layouts[ 0 ] } }
+                        layout={ info_txt_layout }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
@@ -209,8 +209,22 @@ function ComparisonWidget() {
                 </CardWidget>
             </div>
             <div className="cards">
-                <CardWidget style={ { gridColumn: "1 / span 2", gridRow: "1 / span 2", height: "30vw", padding: "1rem", display: "flex", flexDirection:"column" } } title={ "Summary of Current Holdings" }>
-                    { summaries.map((summary, index) => <h3 key={ index } style={ {fontSize: "1rem", } }> {summary} </h3>)}
+                <CardWidget style={ {
+                    gridColumn: "1 / span 2",
+                    gridRow: "1 / span 2",
+                    height: "30vw",
+                    overflow: "hidden",
+                } } title={ "Summary of Current Holdings" }>
+                    <div style={ {
+                        padding: "2rem",
+                        marginTop: "0",
+                        display: "flex",
+                        flexDirection: "column",
+                        overflow: "auto",
+                        height: "70%",
+                    } }>
+                        { summaries.map((summary, index) => <h3 key={ index } style={ { fontSize: "1rem", } }> { summary } </h3>) }
+                    </div>
                 </CardWidget>
                 <CardWidget style={ { gridColumn: "3 / span 2", gridRow: "1 / span 2" } } title={ "Current Holdings" }>
                     <Plot
@@ -225,7 +239,7 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "1 / span 2", gridRow: "3 / span 2" } } title={ "Portfolio Value vs Cash Invested vs Comparison Index" }>
                     <Plot
                         data={ revenueData }
-                        layout={ {...layouts[1]} }
+                        layout={ { ...layouts[ 1 ] } }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
@@ -235,7 +249,7 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "3 / span 2", gridRow: "3 / span 2", height: "27vw" } } title={ "Daily PnL Chart" }>
                     <Plot
                         data={ pnlData }
-                        layout={ {...layouts[ 2 ]} }
+                        layout={ { ...layouts[ 2 ] } }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
