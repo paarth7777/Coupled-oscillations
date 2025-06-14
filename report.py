@@ -119,10 +119,10 @@ def get_comparison_data(portfolio, start_date, end_date, comparison="^IXIC"):
     transactions.sort(key=lambda x: x["date"])
 
     # Identify tickers
-    # cad_tickers = list(portfolio["CAD"].keys())
-    # all_tickers = []
-    # for currency in portfolio.keys():
-    #     all_tickers += list(portfolio[currency].keys())
+    cad_tickers = list(portfolio["CAD"].keys())
+    all_tickers = []
+    for currency in portfolio.keys():
+        all_tickers += list(portfolio[currency].keys())
 
     # ------------------------------
     # Fetch historical prices for portfolio tickers
