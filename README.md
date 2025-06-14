@@ -1,6 +1,6 @@
 # Coupled-oscillations
 
-~ Coupled oscillations goven the universe
+~ Coupled oscillations govern the universe
 
 ![Demo](media/Coupled_oscillators.gif)
 
