@@ -19,7 +19,21 @@ USD_TO_CAD = currencyConverter.convert(
 print(f"USD to CAD conversion rate: {USD_TO_CAD}")
 
 
-def calc_ticker_performance(ticker, transactions, current_price, currency=None):
+def get_start_date(portfolio):
+    """
+    Returns the earliest date from all transactions in the portfolio.
+    """
+    earliest_date = None
+    for currency in portfolio.keys():
+        for ticker, txns in portfolio[currency].items():
+            for txn in txns:
+                txn_date = pd.to_datetime(txn["date"]).tz_localize(None).normalize()
+                if earliest_date is None or txn_date < earliest_date:
+                    earliest_date = txn_date
+    return earliest_date
+
+
+def calc_ticker_performance(transactions, current_price, currency=None):
 
     total_invested = 0
     current_shares = 0
@@ -59,18 +73,18 @@ def get_individual_performance(ticker, start_date, end_date, interval, transacti
     """
     data = yf.download(ticker, start_date, end_date, interval=interval)
 
-    if data.index.tz is None:
-        data.index = data.index.tz_localize("UTC").tz_convert("America/New_York")
-    else:
-        data.index = data.index.tz_convert("America/New_York")
+    # if data.index.tz is None:
+    #     data.index = data.index.tz_localize("UTC").tz_convert("America/New_York")
+    # else:
+    #     data.index = data.index.tz_convert("America/New_York")
 
-    business_days_data = data[data.index.dayofweek < 5]
+    # business_days_data = data[data.index.dayofweek < 5]
 
-    market_open = pd.Timestamp("09:30:00", tz="America/New_York").time()
-    market_close = pd.Timestamp("16:00:00", tz="America/New_York").time()
-    market_hours_data = business_days_data.between_time(market_open, market_close)
+    # market_open = pd.Timestamp("09:30:00", tz="America/New_York").time()
+    # market_close = pd.Timestamp("16:00:00", tz="America/New_York").time()
+    # market_hours_data = business_days_data.between_time(market_open, market_close)
 
-    prices = market_hours_data["Close"]
+    prices = data["Close"][ticker]
 
     result = {
         'prices': prices.to_json(),
@@ -80,24 +94,29 @@ def get_individual_performance(ticker, start_date, end_date, interval, transacti
     if transactions:
         result['transactions'] = transactions
 
-    perf = calc_ticker_performance(ticker, transactions, current_price, currency)
+    perf = calc_ticker_performance(transactions, current_price, currency)
     result['performance'] = perf
 
     return result
 
 
-def get_portfolio_performances(portfolio, start_date, end_date):
+def get_portfolio_performances(portfolio):
+    start_date = get_start_date(portfolio)
+    end_date = datetime.today() + timedelta(days=1)
     result = {}
     for currency in portfolio.keys():
+        result[currency] = {}
         for ticker, txns in portfolio[currency].items():
             stock = yf.Ticker(ticker)
             current_price = stock.info['currentPrice']
-            result[ticker] = get_individual_performance(ticker, start_date, end_date, interval="1h", transactions=txns, current_price=current_price, currency=currency)
+            result[currency][ticker] = get_individual_performance(ticker, start_date, end_date, interval="1d", transactions=txns, current_price=current_price, currency=currency)
 
     return result
 
 
-def get_comparison_data(portfolio, start_date, end_date, comparison="^IXIC"):
+def get_comparison_data(portfolio, comparison="^IXIC"):
+    start_date = get_start_date(portfolio)
+    end_date = datetime.today() + timedelta(days=1)
     # Process all transactions
     transactions = []
     for currency in portfolio.keys():
@@ -301,6 +320,11 @@ def get_comparison_data(portfolio, start_date, end_date, comparison="^IXIC"):
     else:
         pie_labels, pie_sizes = ([], [])
 
+    summaries = []
+    for currency in portfolio.keys():
+        for ticker in portfolio[currency].keys():
+            summaries.append(get_stock_details(ticker))
+
     return {
         "info": {
             "portfolio_value": final_portfolio_value,
@@ -322,6 +346,7 @@ def get_comparison_data(portfolio, start_date, end_date, comparison="^IXIC"):
             "labels": pie_labels,
             "sizes": pie_sizes,
         },
+        "summaries": summaries,
     }
 
 

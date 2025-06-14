@@ -1,159 +1,147 @@
 
 import { use, useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
+import { info_layout, layout } from './constants';
+import CardWidget from './CardWidget';
 // import '../styles/Dashboard.css';
 
 function IndividualPerfWidget() {
 
-    const [ revenueData, setRevenueData ] = useState([]);
-    const [ pnlData, setPnlData ] = useState([]);
-    const [ compositionData, setCompositionData ] = useState([]);
-    const [ info, setInfo ] = useState({});
+    const [ perfData, setPerfData ] = useState({});
+    const [ revision, setRevision ] = useState(0);
+    const [ layouts, setLayouts ] = useState({});
 
     useEffect(() => {
         // Simulating data fetch
         const fetchData = async () => {
-            const res = await fetch('http://localhost:3000/indiv_performance'); // Replace with actual API endpoint
+            const res = await fetch('http://localhost:3000/indiv_performance', {
+                method: "GET",
+                // headers: {
+                //     "Content-Type": "application/json",
+                // },
+                // body: JSON.stringify({ "comparison": selectedIndex }),
+            }); // Replace with actual API endpoint
             const data = await res.json(); // Assuming the API returns JSON data
             console.log(data);
-            const investment_comp = JSON.parse(data.investment_comp);
-            const pnl_data = JSON.parse(data.pnl_data);
-            const revenue = [
-                {
-                    x: Object.keys(investment_comp[ 0 ]).map(date => new Date(parseInt(date))),
-                    y: Object.values(investment_comp[ 0 ]),
-                    type: 'scatter',
-                    mode: 'lines',
-                    marker: { color: 'cornflowerblue' },
-                    // fill: 'tozeroy',
-                    name: 'Portfolio Value (CAD)'
-                },
-                {
-                    x: Object.keys(investment_comp[ 1 ]).map(date => new Date(parseInt(date))),
-                    y: Object.values(investment_comp[ 1 ]),
-                    type: 'scatter',
-                    mode: 'lines',
-                    marker: { color: 'orange' },
-                    // fill: 'tozeroy',
-                    name: 'Cash Invested (CAD)'
-                },
-                {
-                    x: Object.keys(investment_comp[ 2 ]).map(date => new Date(parseInt(date))),
-                    y: Object.values(investment_comp[ 2 ]),
-                    type: 'scatter',
-                    mode: 'lines',
-                    marker: { color: 'seagreen' },
-                    // fill: 'tozeroy',
-                    name: 'NASDAQ Value (CAD)'
-                },
-            ];
+            const new_perf_data = {}
+            const new_layouts = {};
+            for (let currency in data) {
+                new_perf_data[ currency ] = {};
+                new_layouts[ currency ] = {};
+                for (let ticker in data[ currency ]) {
+                    const invested = data[ currency ][ ticker ][ 'performance' ][ 'total_invested' ];
+                    const final = data[ currency ][ ticker ][ 'performance' ][ 'final_value' ];
+                    const prices = JSON.parse(data[ currency ][ ticker ][ 'prices' ]);
+                    const transactions = data[ currency ][ ticker ][ 'transactions' ];
+                    new_perf_data[ currency ][ ticker ] = {
+                        info: {
+                            invested: [ {
+                                type: "indicator",
+                                mode: "number",
+                                value: invested,
+                                number: { prefix: "$", suffix: " CAD" },
+                                // delta: { reference: data.info.cash_invested, relative: true, position: "bottom" }
+                            } ],
+                            final: [ {
+                                type: "indicator",
+                                mode: "number+delta",
+                                value: final,
+                                number: { prefix: "$", suffix: " CAD" },
+                                delta: { reference: invested, relative: true, position: "bottom" }
+                            } ],
+                        },
+                        prices: [
+                            {
+                                x: Object.keys(prices).map(date => new Date(parseInt(date))),
+                                y: Object.values(prices),
+                                type: 'scatter',
+                                mode: 'lines',
+                                marker: { color: 'white' },
+                                // fill: 'tozeroy',
+                                name: `${ticker} Prices (CAD)`,
+                                hoverinfo: "x+y"
+                            },
+                            {
+                                x: transactions.map(tx => Date.parse(tx.date)),
+                                y: transactions.map(tx => tx.price),
+                                type: 'scatter',
+                                mode: 'markers',
+                                marker: {
+                                    color:
+                                        transactions.map(tx => tx.type === 'buy' ? 'green' : 'red'),
+                                },
+                                // fill: 'tozeroy',
+                                name: 'Transactions',
+                                text: transactions.map(tx => `${tx.type} $${tx.price} (${tx.quantity})`),
+                                hoverinfo: "text",
+                            },
+                        ],
+                    };
 
-            const pnl = [
-                {
-                    x: Object.keys(pnl_data[ 0 ]).map(date => new Date(parseInt(date))),
-                    y: Object.values(pnl_data[ 0 ]),
-                    type: 'bar',
-                    // mode: 'lines+markers',
-                    marker: { color: Object.values(pnl_data[ 0 ]).map(value => value >= 0 ? 'green' : 'darkgreen') },
-                    // fill: 'tozeroy',
-                    name: 'Portfolio Daily % PnL'
-                },
-                {
-                    x: Object.keys(pnl_data[ 1 ]).map(date => new Date(parseInt(date))),
-                    y: Object.values(pnl_data[ 1 ]),
-                    type: 'bar',
-                    // mode: 'lines+markers',
-                    marker: { color: Object.values(pnl_data[ 0 ]).map(value => value >= 0 ? 'orange' : 'darkorange') },
-                    // fill: 'tozeroy',
-                    name: 'NASDAQ % PnL'
+                    new_layouts[ currency ][ ticker ] = {
+                        ...layout
+                    }
                 }
-            ];
-
-            const comp = [ {
-                labels: data.composition.labels,
-                values: data.composition.sizes,
-                type: 'pie',
-                textinfo: 'label',
-                // insidetextorientation: 'radial',
-                // marker: {
-                //     colors: [
-                //         '#636efa', '#EF553B', '#00cc96', '#ab63fa', '#FFA15A', '#19d3f3',
-                //         '#FF6692', '#B6E880', '#FF97FF', '#FECB52'
-                //     ]
-                // },
-                name: 'Portfolio Composition'
-            }]
-
-            setRevenueData(revenue);
-            setPnlData(pnl);
-            setCompositionData(comp);
-            setInfo(data.info);
+            }
+            setPerfData(new_perf_data);
+            setLayouts(new_layouts); // Assuming each item has a layout property
+            setRevision(prev => prev + 1); // Trigger re-render
         };
 
         fetchData();
 
         return () => {
         }
-    }, [])
+    }, []);
 
-
-    const [ layout, setLayout ] = useState({
-        xaxis: {
-            autorange: true,
-            // range: [ '2015-02-17', '2017-02-16' ],
-            rangeselector: {
-                buttons: [
-                    {
-                        count: 1,
-                        label: '1m',
-                        step: 'month',
-                        stepmode: 'backward'
-                    },
-                    {
-                        count: 6,
-                        label: '6m',
-                        step: 'month',
-                        stepmode: 'backward'
-                    },
-                    { step: 'all' }
-                ]
-            },
-            rangeslider: true,
-            type: 'date'
-        },
-        yaxis: {
-            autorange: true,
-            // range: [ 86.8700008333, 138.870004167 ],
-            type: 'linear'
-        }
-    });
 
     return (
-        <div className="dashboard">
-            {/* <h1>Comparison and Overview</h1> */}
-            <div className="cards">
-                <Plot
-                    data={ compositionData }
-                    layout={ { title: { text: "Current Holdings" }, } }
-                    useResizeHandler={ true }
-                    config={ { responsive: true, displaylogo: false } }
-                    // style={ { width: "50%", height: "100%" } }
-                />
-                <Plot
-                    data={ revenueData }
-                    layout={ {...layout } }
-                    useResizeHandler={ true }
-                    config={ { responsive: true, displaylogo: false } }
-                    style={ { width: "50%", height: "100%" } }
-                />
-                <Plot
-                    data={ pnlData }
-                    layout={ { ...layout, barmode: "group" } }
-                    useResizeHandler={ true }
-                    config={ { responsive: true, displaylogo: false } }
-                    style={ { width: "50%", height: "100%" } }
-                />
-            </div>
+        <div className="indiv-perf-widget">
+            {/* <h1>Comparison and Overview</h1> */ }
+            <h2>Individual Performance</h2>
+            {
+                Object.keys(perfData).length > 0 ? Object.keys(perfData).map(currency => (
+                    <div key={ currency } className="currency-section">
+                        <h3>{ currency } Equities</h3>
+                        {
+                            Object.keys(perfData[ currency ]).map(ticker => (
+                                <div key={ ticker } className="cards">
+                                    <CardWidget style={ { gridColumn: "2", gridRow: "1", height: "15vw" } } title={ "Cash Invested" }>
+                                        <Plot
+                                            data={ perfData[ currency ][ ticker ].info.invested }
+                                            layout={ info_layout }
+                                            useResizeHandler={ true }
+                                            config={ { responsive: true, displaylogo: false } }
+                                            style={ { width: "100%", height: "100%" } }
+                                            revision={ revision }
+                                        />
+                                    </CardWidget>
+                                    <CardWidget style={ { gridColumn: "2", gridRow: "2", height: "15vw" } } title={ ticker + " Final Value" }>
+                                        <Plot
+                                            data={ perfData[ currency ][ ticker ].info.final }
+                                            layout={ info_layout }
+                                            useResizeHandler={ true }
+                                            config={ { responsive: true, displaylogo: false } }
+                                            style={ { width: "100%", height: "100%" } }
+                                            revision={ revision }
+                                        />
+                                    </CardWidget>
+                                    <CardWidget style={ { gridColumn: "1", gridRow: "1 / span 2" } } title={ ticker + " Prices" }>
+                                        <Plot
+                                            data={ perfData[ currency ][ ticker ].prices }
+                                            layout={ layouts[ currency ][ ticker ] }
+                                            useResizeHandler={ true }
+                                            config={ { responsive: true, displaylogo: false } }
+                                            style={ { width: "100%", height: "100%" } }
+                                            revision={ revision }
+                                        />
+                                    </CardWidget>
+                                </div>
+                            ))
+                        }
+                    </div>
+                )) : <p>Loading...</p>
+            }
         </div>
     );
 }

@@ -52,23 +52,24 @@ portfolio = {
     },
 }
 
-start_date = "2020-02-05"
-end_date = "2025-04-02"
+# start_date = "2020-02-05"
+# end_date = "2025-04-02"
 
 
 @app.route("/comparison", methods=["GET", "POST"])
 def helloWorld():
-    if request.method == 'POST':
+    if request.method == "POST":
         request_data = request.get_json()
-        print(request_data)
-        comparison = request_data.get('comparison')
-        return get_comparison_data(portfolio, start_date, end_date, comparison=comparison)
+        # print(request_data)
+        comparison = request_data.get("comparison")
+        return get_comparison_data(portfolio, comparison=comparison)
     else:
-        return get_comparison_data(portfolio, start_date, end_date)
+        return get_comparison_data(portfolio)
 
-@app.route("/indiv_performance")
+
+@app.route("/indiv_performance", methods=["GET", "POST"])
 def get_portfolio():
-    return get_portfolio_performances(portfolio, start_date, end_date)
+    return get_portfolio_performances(portfolio)
 
 
 if __name__ == "__main__":

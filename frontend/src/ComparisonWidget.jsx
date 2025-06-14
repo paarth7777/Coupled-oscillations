@@ -2,6 +2,7 @@
 import { use, useEffect, useState } from 'react';
 import Plot from 'react-plotly.js';
 import CardWidget from './CardWidget';
+import { info_layout, layout } from './constants';
 // import '../styles/Dashboard.css';
 
 const comp_indices = [
@@ -35,6 +36,7 @@ function ComparisonWidget() {
     const [ info, setInfo ] = useState([]);
     const [ revision, setRevision ] = useState(0);
     const [ selectedIndex, setselectedIndex ] = useState("^IXIC");
+    const [ summaries, setSummaries ] = useState([]);
 
     useEffect(() => {
         // Simulating data fetch
@@ -59,7 +61,8 @@ function ComparisonWidget() {
                     mode: 'lines',
                     marker: { color: 'cornflowerblue' },
                     // fill: 'tozeroy',
-                    name: 'Portfolio Value (CAD)'
+                    name: 'Portfolio Value (CAD)',
+                    hoverinfo: "x+y"
                 },
                 {
                     x: Object.keys(investment_comp[ 1 ]).map(date => new Date(parseInt(date))),
@@ -114,7 +117,8 @@ function ComparisonWidget() {
                 //         '#FF6692', '#B6E880', '#FF97FF', '#FECB52'
                 //     ]
                 // },
-                name: 'Portfolio Composition'
+                name: 'Portfolio Composition',
+                textposition: "outside",
             } ]
 
             var portfolio_info = [
@@ -145,6 +149,7 @@ function ComparisonWidget() {
             setPnlData(pnl);
             setCompositionData(comp);
             setInfo(portfolio_info);
+            setSummaries(data.summaries);
             setRevision(prev => prev + 1); // Trigger re-render
         };
 
@@ -154,74 +159,16 @@ function ComparisonWidget() {
         }
     }, [ selectedIndex ])
 
-    const layout = {
-        xaxis: {
-            autorange: true,
-            // range: [ '2015-02-17', '2017-02-16' ],
-            color: "white",
-            rangeselector: {
-                bgcolor: 'transparent',
-                activecolor: '#00000099',
-                // bordercolor: 'white',
-                // borderwidth: 1,
-                buttons: [
-                    {
-                        count: 1,
-                        label: '1m',
-                        step: 'month',
-                        stepmode: 'backward'
-                    },
-                    {
-                        count: 6,
-                        label: '6m',
-                        step: 'month',
-                        stepmode: 'backward',
-                        bgcolor: 'black'
-                    },
-                    { step: 'all' }
-                ]
-            },
-            rangeslider: true,
-            type: 'date',
-            showspikes: true,
-            spikethickness: -2,
-            spikemode: "toaxis",
-        },
-        yaxis: {
-            autorange: true,
-            // range: [ 86.8700008333, 138.870004167 ],
-            showspikes: true,
-            spikethickness: -2,
-            spikemode: "toaxis",
-            type: 'linear'
-        },
-        paper_bgcolor: "transparent",
-        plot_bgcolor: "transparent",
-        font: {
-            color: "white",
-        },
-        margin: { pad: 5, },
-        legend: {
-            orientation: 'h',
-            yanchor: 'bottom',
-            y: 1.15,
-            xanchor: 'left',
-            x: 0,
-            // bgcolor: 'transparent',
-            // bordercolor: 'white',
-            // borderwidth: 1,
-        },
-        hovermode: "x",
-    }
+    
 
 
-    const [ layouts, setLayouts ] = useState([ { paper_bgcolor: "transparent", plot_bgcolor: "transparent", font: { color: "white" } }, { ...layout }, { ...layout, barmode: "group" } ]);
+    const [ layouts, setLayouts ] = useState([ info_layout, { ...layout }, { ...layout, barmode: "group" } ]);
 
     return (
         <div className="comparison">
-
-            <div className="cards">
-                <CardWidget style={ { gridColumn: "1", gridRow: "1", height: "15vw" } } title={ "Comparison Index" }>
+            <div className="header">
+                <h1 style={ { gridColumn: "1", gridRow: "1"} }>Investment Portfolio</h1>
+                <CardWidget style={ { gridColumn: "2", gridRow: "1", height: "15vw" } } title={ "Comparison Index" }>
                     <select onChange={ e => setselectedIndex(e.target.value) } className='comparison-select'>
                         { comp_indices.map((index, idx) => (
                             <option key={ idx } value={ index.ticker }>
@@ -230,7 +177,7 @@ function ComparisonWidget() {
                         )) }
                     </select>
                 </CardWidget>
-                <CardWidget style={ { gridColumn: "2", gridRow: "1", height: "15vw" } } title={ "Cash Invested" }>
+                <CardWidget style={ { gridColumn: "3", gridRow: "1", height: "15vw" } } title={ "Cash Invested" }>
                     <Plot
                         data={ [ info[ 0 ] ] }
                         layout={ { ...layouts[ 0 ] } }
@@ -240,7 +187,7 @@ function ComparisonWidget() {
                         revision={ revision }
                     />
                 </CardWidget>
-                <CardWidget style={ { gridColumn: "1", gridRow: "2", height: "15vw" } } title={ "Portfolio Value" }>
+                <CardWidget style={ { gridColumn: "4", gridRow: "1", height: "15vw" } } title={ "Portfolio Value" }>
                     <Plot
                         data={ [ info[ 1 ] ] }
                         layout={ { ...layouts[ 0 ] } }
@@ -250,7 +197,7 @@ function ComparisonWidget() {
                         revision={ revision }
                     />
                 </CardWidget>
-                <CardWidget style={ { gridColumn: "2", gridRow: "2", height: "15vw" } } title={ "Comparsion Index Value" }>
+                <CardWidget style={ { gridColumn: "5", gridRow: "1", height: "15vw" } } title={ "Comparsion Index Value" }>
                     <Plot
                         data={ [ info[ 2 ] ] }
                         layout={ { ...layouts[ 0 ] } }
@@ -259,6 +206,11 @@ function ComparisonWidget() {
                         style={ { width: "100%", height: "100%" } }
                         revision={ revision }
                     />
+                </CardWidget>
+            </div>
+            <div className="cards">
+                <CardWidget style={ { gridColumn: "1 / span 2", gridRow: "1 / span 2", height: "30vw", padding: "1rem", display: "flex", flexDirection:"column" } } title={ "Summary of Current Holdings" }>
+                    { summaries.map((summary, index) => <h3 key={ index } style={ {fontSize: "1rem", } }> {summary} </h3>)}
                 </CardWidget>
                 <CardWidget style={ { gridColumn: "3 / span 2", gridRow: "1 / span 2" } } title={ "Current Holdings" }>
                     <Plot
@@ -273,17 +225,17 @@ function ComparisonWidget() {
                 <CardWidget style={ { gridColumn: "1 / span 2", gridRow: "3 / span 2" } } title={ "Portfolio Value vs Cash Invested vs Comparison Index" }>
                     <Plot
                         data={ revenueData }
-                        layout={ layout }
+                        layout={ {...layouts[1]} }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }
                         revision={ revision }
                     />
                 </CardWidget>
-                <CardWidget style={ { gridColumn: "3 / span 2", gridRow: "3 / span 2" } } title={ "Daily PnL Chart" }>
+                <CardWidget style={ { gridColumn: "3 / span 2", gridRow: "3 / span 2", height: "27vw" } } title={ "Daily PnL Chart" }>
                     <Plot
                         data={ pnlData }
-                        layout={ layouts[ 2 ] }
+                        layout={ {...layouts[ 2 ]} }
                         useResizeHandler={ true }
                         config={ { responsive: true, displaylogo: false } }
                         style={ { width: "100%", height: "100%" } }

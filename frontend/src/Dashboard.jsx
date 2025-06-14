@@ -8,9 +8,8 @@ function Dashboard() {
 
     return (
         <div className="dashboard">
-            <h1>Investment Portfolio</h1>
             <ComparisonWidget />
-            {/* <IndividualPerfWidget /> */}
+            <IndividualPerfWidget />
         </div>
     );
 }
