@@ -8,16 +8,16 @@ app = Flask(__name__)
 CORS(app)
 
 portfolio = {
-    # "INR": {
-    #     "ADANIENT.NS": [
-    #         {
-    #             "type": "buy",
-    #             "date": "2020-06-15 09:30:00",
-    #             "quantity": 1000,
-    #             "price": 151.00,
-    #         },
-    #     ],
-    # },
+    "INR": {
+        "ADANIENT.NS": [
+            {
+                "type": "buy",
+                "date": "2020-06-15 09:30:00",
+                "quantity": 1000,
+                "price": 151.00,
+            },
+        ],
+    },
     "USD": {
         "RGTI": [
             {
@@ -52,7 +52,7 @@ portfolio = {
     },
 }
 
-start_date = "2025-02-05"
+start_date = "2020-02-05"
 end_date = "2025-04-02"
 
 
