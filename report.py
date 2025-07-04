@@ -11,7 +11,11 @@ import numpy as np
 import textwrap
 from currency_converter import CurrencyConverter
 
-currencyConverter = CurrencyConverter()
+currencyConverter = CurrencyConverter(
+    fallback_on_missing_rate=True,
+    fallback_on_missing_rate_method="last_known",
+    fallback_on_wrong_date=True,
+)
 
 # try:
 #     USD_TO_CAD = currencyConverter.convert(

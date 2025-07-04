@@ -12,7 +12,7 @@ portfolio = {
         "ADANIENT.NS": [
             {
                 "type": "buy",
-                "date": "2020-06-15 09:30:00",
+                "date": "2025-07-02 09:30:00",
                 "quantity": 1000,
                 "price": 151.00,
             },
