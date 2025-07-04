@@ -13,10 +13,14 @@ from currency_converter import CurrencyConverter
 
 currencyConverter = CurrencyConverter()
 
-USD_TO_CAD = currencyConverter.convert(
-    100, "USD", "CAD", date=datetime.now() - timedelta(days=5)
-)
-print(f"USD to CAD conversion rate: {USD_TO_CAD}")
+# try:
+#     USD_TO_CAD = currencyConverter.convert(
+#         100, "USD", "CAD", date=datetime.now() - timedelta(days=5)
+#     )
+# except Exception as e:
+#     print(f"Error fetching USD to CAD conversion rate: {e}")
+#     USD_TO_CAD = 1.43
+# print(f"USD to CAD conversion rate: {USD_TO_CAD}")
 
 
 def get_start_date(portfolio):
