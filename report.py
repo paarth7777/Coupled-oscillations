@@ -314,7 +314,7 @@ def get_comparison_data(portfolio, comparison="^IXIC"):
             quantity = current_holdings[ticker]
             if quantity > 0:
                 price = historical_prices[ticker].iloc[-1]
-                if currency != "USD":
+                if currency != "CAD":
                     value = quantity * currencyConverter.convert(price, currency, "CAD", date=txn["date"])
                 else:
                     value = quantity * price
